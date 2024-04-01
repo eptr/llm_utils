@@ -221,20 +221,20 @@ Qwen-Audio-Chat <a href="https://modelscope.cn/models/qwen/Qwen-Audio-Chat/summa
         mic = gr.Audio(sources=["microphone"], type="filepath")
 
         with gr.Row():
-            empty_bin = gr.Button("🧹 Clear History (清除历史)")
+            addfile_btn = gr.UploadButton("📁 Upload (上传文件)", file_types=["audio"])
             submit_btn = gr.Button("🚀 Submit (发送)")
             regen_btn = gr.Button("🤔️ Regenerate (重试)")
-            addfile_btn = gr.UploadButton("📁 Upload (上传文件)", file_types=["audio"])
+            empty_bin = gr.Button("🧹 Clear History (清除历史)")
 
         mic.change(add_mic, [chatbot, task_history, mic], [chatbot, task_history])
+        addfile_btn.upload(add_file, [chatbot, task_history, addfile_btn], [chatbot, task_history], show_progress=True)
         submit_btn.click(add_text, [chatbot, task_history, query], [chatbot, task_history]).then(
             predict, [chatbot, task_history], [chatbot], show_progress=True
         )
         submit_btn.click(reset_user_input, [], [query])
-        empty_bin.click(reset_state, [task_history], [chatbot], show_progress=True)
         regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
-        addfile_btn.upload(add_file, [chatbot, task_history, addfile_btn], [chatbot, task_history], show_progress=True)
-
+        empty_bin.click(reset_state, [task_history], [chatbot], show_progress=True)
+        
         gr.Markdown("""\
 <font size=2>Note: This demo is governed by the original license of Qwen-Audio. \
 We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, \
@@ -246,8 +246,7 @@ including hate speech, violence, pornography, deception, etc. \
         share=args.share,
         inbrowser=args.inbrowser,
         server_port=args.server_port,
-        server_name=args.server_name,
-        file_directories=["/tmp/"]
+        server_name=args.server_name
     )
 
 

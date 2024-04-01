@@ -206,19 +206,19 @@ Qwen-VL-Chat <a href="https://modelscope.cn/models/qwen/Qwen-VL-Chat/summary">�
         task_history = gr.State([])
 
         with gr.Row():
-            empty_bin = gr.Button("🧹 Clear History (清除历史)")
+            addfile_btn = gr.UploadButton("📁 Upload (上传文件)", file_types=["image"])
             submit_btn = gr.Button("🚀 Submit (发送)")
             regen_btn = gr.Button("🤔️ Regenerate (重试)")
-            addfile_btn = gr.UploadButton("📁 Upload (上传文件)", file_types=["image"])
+            empty_bin = gr.Button("🧹 Clear History (清除历史)")
 
+        addfile_btn.upload(add_file, [chatbot, task_history, addfile_btn], [chatbot, task_history], show_progress=True)
         submit_btn.click(add_text, [chatbot, task_history, query], [chatbot, task_history]).then(
             predict, [chatbot, task_history], [chatbot], show_progress=True
         )
         submit_btn.click(reset_user_input, [], [query])
-        empty_bin.click(reset_state, [task_history], [chatbot], show_progress=True)
         regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
-        addfile_btn.upload(add_file, [chatbot, task_history, addfile_btn], [chatbot, task_history], show_progress=True)
-
+        empty_bin.click(reset_state, [task_history], [chatbot], show_progress=True)
+        
         gr.Markdown("""\
 <font size=2>Note: This demo is governed by the original license of Qwen-VL. \
 We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, \
