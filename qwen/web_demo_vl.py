@@ -15,7 +15,7 @@ import re
 import secrets
 import tempfile
 from modelscope import (
-    snapshot_download, AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+    AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 
 DEFAULT_CKPT_PATH = 'qwen/Qwen-VL-Chat'
@@ -188,8 +188,7 @@ def _launch_demo(args, model, tokenizer):
 
     with gr.Blocks() as demo:
         gr.Markdown("""\
-<p align="center"><img src="https://modelscope.cn/api/v1/models/qwen/Qwen-7B-Chat/repo?
-Revision=master&FilePath=assets/logo.jpeg&View=true" style="height: 80px"/><p>""")
+<p align="center"><img src="https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg" style="height: 80px"/><p>""")
         gr.Markdown("""<center><font size=8>Qwen-VL-Chat Bot</center>""")
         gr.Markdown(
             """\

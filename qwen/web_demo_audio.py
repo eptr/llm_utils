@@ -14,8 +14,9 @@ import os
 import re
 import secrets
 import tempfile
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers.generation import GenerationConfig
+from modelscope import (
+    AutoModelForCausalLM, AutoTokenizer, GenerationConfig
+)
 from pydub import AudioSegment
 
 DEFAULT_CKPT_PATH = 'Qwen/Qwen-Audio-Chat'
@@ -201,7 +202,7 @@ def _launch_demo(args, model, tokenizer):
 
     with gr.Blocks() as demo:
         gr.Markdown("""\
-<p align="center"><img src="https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-Audio/logo.jpg" style="height: 80px"/><p>""")  ## todo
+<p align="center"><img src="https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg" style="height: 80px"/><p>""")  ## todo
         gr.Markdown("""<center><font size=8>Qwen-Audio-Chat Bot</center>""")
         gr.Markdown(
             """\
