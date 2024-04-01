@@ -18,7 +18,7 @@ from modelscope import (
     AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 
-DEFAULT_CKPT_PATH = 'qwen/Qwen-VL-Chat'
+DEFAULT_CKPT_PATH = 'Qwen/Qwen-VL-Chat'
 BOX_TAG_PATTERN = r"<box>([\s\S]*?)</box>"
 PUNCTUATION = "！？。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 
