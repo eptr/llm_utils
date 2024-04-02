@@ -1,24 +1,25 @@
-# Copyright (c) Alibaba Cloud.
-#
-# This source code is licensed under the license found in the
-# LICENSE file in the root directory of this source tree.
-
-"""A simple web interactive chat demo based on gradio."""
-
-from argparse import ArgumentParser
-from pathlib import Path
-
 import copy
-import gradio as gr
 import os
 import re
 import secrets
 import tempfile
+from argparse import ArgumentParser
+from pathlib import Path
+
+import gradio as gr
 from modelscope import (
     AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 
-DEFAULT_CKPT_PATH = 'Qwen/Qwen-VL-Chat'
+ENT_LOGOS = {
+    'qwen': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
+    'adept': 'https://www.adept.ai/images/adept-logo.png'
+}
+
+DEFAULT_CKPT_PATH = os.getenv('MODEL_NAME', default='Qwen/Qwen-VL-Chat')
+ENT_NAME = Path(DEFAULT_CKPT_PATH).parent
+ENT_LOGO = ENT_LOGOS[ENT_NAME] if ENT_NAME in ENT_LOGOS else None
+MDL_NAME = Path(DEFAULT_CKPT_PATH).name
 BOX_TAG_PATTERN = r"<box>([\s\S]*?)</box>"
 PUNCTUATION = "！？。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 
@@ -97,9 +98,11 @@ def _parse_text(text):
     text = "".join(lines)
     return text
 
+
 def _remove_image_special(text):
     text = text.replace('<ref>', '').replace('</ref>', '')
     return re.sub(r'<box>.*?(</box>|$)', '', text)
+
 
 def _launch_demo(args, model, tokenizer):
     uploaded_file_dir = os.environ.get("GRADIO_TEMP_DIR") or str(
@@ -187,29 +190,19 @@ def _launch_demo(args, model, tokenizer):
         return []
 
     with gr.Blocks() as demo:
-        gr.Markdown("""\
-<p align="center"><img src="https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg" style="height: 80px"/><p>""")
-        gr.Markdown("""<center><font size=8>Qwen-VL-Chat Bot</center>""")
-        gr.Markdown(
-            """\
-<center><font size=3>This WebUI is based on Qwen-VL-Chat, developed by Alibaba Cloud. \
-(本WebUI基于Qwen-VL-Chat打造，实现聊天机器人功能。)</center>""")
-        gr.Markdown("""\
-<center><font size=4>Qwen-VL <a href="https://modelscope.cn/models/qwen/Qwen-VL/summary">🤖 </a> 
-| <a href="https://huggingface.co/Qwen/Qwen-VL">🤗</a>&nbsp ｜ 
-Qwen-VL-Chat <a href="https://modelscope.cn/models/qwen/Qwen-VL-Chat/summary">🤖 </a> | 
-<a href="https://huggingface.co/Qwen/Qwen-VL-Chat">🤗</a>&nbsp ｜ 
-&nbsp<a href="https://github.com/QwenLM/Qwen-VL">Github</a></center>""")
+        if ENT_LOGO is not None:
+            gr.Markdown(f'<p align="center"><img src="{ENT_LOGO}" style="height: 80px"/><p>')
+        gr.Markdown(f'<center><font size=8>{MDL_NAME}</center>')
 
-        chatbot = gr.Chatbot(label='Qwen-VL-Chat', elem_classes="control-height", height=750)
+        chatbot = gr.Chatbot(label=MDL_NAME, elem_classes="control-height", height=750)
         query = gr.Textbox(lines=2, label='Input')
         task_history = gr.State([])
 
         with gr.Row():
-            addfile_btn = gr.UploadButton("📁 Upload (上传文件)", file_types=["image"])
+            addfile_btn = gr.UploadButton("🏞️ Upload (上传)", file_types=["image"])
             submit_btn = gr.Button("🚀 Submit (发送)")
-            regen_btn = gr.Button("🤔️ Regenerate (重试)")
-            empty_bin = gr.Button("🧹 Clear History (清除历史)")
+            regen_btn = gr.Button("🔄 Retry (重试)")
+            empty_bin = gr.Button("🧹 Clear (清除)")
 
         addfile_btn.upload(add_file, [chatbot, task_history, addfile_btn], [chatbot, task_history], show_progress=True)
         submit_btn.click(add_text, [chatbot, task_history, query], [chatbot, task_history]).then(
@@ -218,13 +211,6 @@ Qwen-VL-Chat <a href="https://modelscope.cn/models/qwen/Qwen-VL-Chat/summary">�
         submit_btn.click(reset_user_input, [], [query])
         regen_btn.click(regenerate, [chatbot, task_history], [chatbot], show_progress=True)
         empty_bin.click(reset_state, [task_history], [chatbot], show_progress=True)
-        
-        gr.Markdown("""\
-<font size=2>Note: This demo is governed by the original license of Qwen-VL. \
-We strongly advise users not to knowingly generate or allow others to knowingly generate harmful content, \
-including hate speech, violence, pornography, deception, etc. \
-(注：本演示受Qwen-VL的许可协议限制。我们强烈建议，用户不应传播及不应允许他人传播以下内容，\
-包括但不限于仇恨言论、暴力、色情、欺诈相关的有害信息。)""")
 
     demo.queue().launch(
         share=args.share,
@@ -236,9 +222,7 @@ including hate speech, violence, pornography, deception, etc. \
 
 def main():
     args = _get_args()
-
     model, tokenizer = _load_model_tokenizer(args)
-
     _launch_demo(args, model, tokenizer)
 
 
