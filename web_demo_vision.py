@@ -12,14 +12,13 @@ from modelscope import (
 )
 
 ENT_LOGOS = {
-    'qwen': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
-    'adept': 'https://www.adept.ai/images/adept-logo.png'
+    'qwen-vl-chat': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
+    'fuyu-8b': 'https://www.adept.ai/images/adept-logo.png'
 }
 
 DEFAULT_CKPT_PATH = os.getenv('MODEL_NAME', default='Qwen/Qwen-VL-Chat')
-ENT_NAME = Path(DEFAULT_CKPT_PATH).parent
-ENT_LOGO = ENT_LOGOS[ENT_NAME] if ENT_NAME in ENT_LOGOS else None
 MDL_NAME = Path(DEFAULT_CKPT_PATH).name
+ENT_LOGO = ENT_LOGOS[MDL_NAME.lower()] if MDL_NAME.lower() in ENT_LOGOS else None
 BOX_TAG_PATTERN = r"<box>([\s\S]*?)</box>"
 PUNCTUATION = "！？。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 

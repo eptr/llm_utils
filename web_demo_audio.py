@@ -14,14 +14,13 @@ from pydub import AudioSegment
 
 
 ENT_LOGOS = {
-    'qwen': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
-    'adept': 'https://www.adept.ai/images/adept-logo.png'
+    'qwen-audio-chat': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
 }
 
 DEFAULT_CKPT_PATH = os.getenv('MODEL_NAME', default='Qwen/Qwen-Audio-Chat')
-ENT_NAME = Path(DEFAULT_CKPT_PATH).parent
-ENT_LOGO = ENT_LOGOS[ENT_NAME] if ENT_NAME in ENT_LOGOS else None
 MDL_NAME = Path(DEFAULT_CKPT_PATH).name
+ENT_LOGO = ENT_LOGOS[MDL_NAME.lower()] if MDL_NAME.lower() in ENT_LOGOS else None
+
 
 def _get_args():
     parser = ArgumentParser()
