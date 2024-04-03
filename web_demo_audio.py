@@ -1,25 +1,26 @@
-from argparse import ArgumentParser
-from pathlib import Path
-
 import copy
-import gradio as gr
 import os
 import re
 import secrets
 import tempfile
+from argparse import ArgumentParser
+from pathlib import Path
+
+import gradio as gr
 from modelscope import (
     AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 from pydub import AudioSegment
 
-
-ENT_LOGOS = {
-    'qwen-audio-chat': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
+LOGOS = {
+    'qwen-': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
+    'fuyu-': 'https://www.adept.ai/images/adept-logo.png'
 }
 
 DEFAULT_CKPT_PATH = os.getenv('MODEL_NAME', default='Qwen/Qwen-Audio-Chat')
 MDL_NAME = Path(DEFAULT_CKPT_PATH).name
-ENT_LOGO = ENT_LOGOS[MDL_NAME.lower()] if MDL_NAME.lower() in ENT_LOGOS else None
+MDL_LOGO = [v for k, v in LOGOS.items() if MDL_NAME.lower().startswith(k)]
+MDL_LOGO = MDL_LOGO[0] if len(MDL_LOGO) > 0 else None
 
 
 def _get_args():
@@ -126,11 +127,11 @@ def _launch_demo(args, model, tokenizer):
         ts_pattern = r"<\|\d{1,2}\.\d+\|>"
         all_time_stamps = re.findall(ts_pattern, response)
         print(response)
-        if (len(all_time_stamps) > 0) and (len(all_time_stamps) % 2 ==0) and last_audio:
-            ts_float = [ float(t.replace("<|","").replace("|>","")) for t in all_time_stamps]
-            ts_float_pair = [ts_float[i:i + 2] for i in range(0,len(all_time_stamps),2)]
+        if (len(all_time_stamps) > 0) and (len(all_time_stamps) % 2 == 0) and last_audio:
+            ts_float = [float(t.replace("<|", "").replace("|>", "")) for t in all_time_stamps]
+            ts_float_pair = [ts_float[i:i + 2] for i in range(0, len(all_time_stamps), 2)]
             # 读取音频文件
-            format = os.path.splitext(last_audio)[-1].replace(".","")
+            format = os.path.splitext(last_audio)[-1].replace(".", "")
             audio_file = AudioSegment.from_file(last_audio, format=format)
             chat_response_t = response.replace("<|", "").replace("|>", "")
             chat_response = chat_response_t
@@ -200,9 +201,9 @@ def _launch_demo(args, model, tokenizer):
         task_history.clear()
         return []
 
-    with gr.Blocks() as demo:
-        if ENT_LOGO is not None:
-            gr.Markdown(f'<p align="center"><img src="{ENT_LOGO}" style="height: 80px"/><p>')
+    with gr.Blocks(title=f'音频大模型') as demo:
+        if MDL_LOGO is not None:
+            gr.Markdown(f'<p align="center"><img src="{MDL_LOGO}" style="height: 80px"/><p>')
         gr.Markdown(f'<center><font size=8>{MDL_NAME}</center>')
 
         chatbot = gr.Chatbot(label=MDL_NAME, elem_classes="control-height", height=750)

@@ -11,14 +11,15 @@ from modelscope import (
     AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 
-ENT_LOGOS = {
-    'qwen-vl-chat': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
-    'fuyu-8b': 'https://www.adept.ai/images/adept-logo.png'
+LOGOS = {
+    'qwen-': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
+    'fuyu-': 'https://www.adept.ai/images/adept-logo.png'
 }
 
 DEFAULT_CKPT_PATH = os.getenv('MODEL_NAME', default='Qwen/Qwen-VL-Chat')
 MDL_NAME = Path(DEFAULT_CKPT_PATH).name
-ENT_LOGO = ENT_LOGOS[MDL_NAME.lower()] if MDL_NAME.lower() in ENT_LOGOS else None
+MDL_LOGO = [v for k, v in LOGOS.items() if MDL_NAME.lower().startswith(k)]
+MDL_LOGO = MDL_LOGO[0] if len(MDL_LOGO) > 0 else None
 BOX_TAG_PATTERN = r"<box>([\s\S]*?)</box>"
 PUNCTUATION = "！？。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 
@@ -188,9 +189,9 @@ def _launch_demo(args, model, tokenizer):
         task_history.clear()
         return []
 
-    with gr.Blocks() as demo:
-        if ENT_LOGO is not None:
-            gr.Markdown(f'<p align="center"><img src="{ENT_LOGO}" style="height: 80px"/><p>')
+    with gr.Blocks(title='视觉大模型') as demo:
+        if MDL_LOGO is not None:
+            gr.Markdown(f'<p align="center"><img src="{MDL_LOGO}" style="height: 80px"/><p>')
         gr.Markdown(f'<center><font size=8>{MDL_NAME}</center>')
 
         chatbot = gr.Chatbot(label=MDL_NAME, elem_classes="control-height", height=750)
