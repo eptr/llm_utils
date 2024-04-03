@@ -11,6 +11,19 @@ from modelscope import (
     AutoModelForCausalLM, AutoTokenizer, GenerationConfig
 )
 
+css = """
+.model-info {
+    display: flex;
+    align-items: center;
+    font-size:40px;
+    font-weight: 600;
+}
+.model-icon {
+    max-height:50px;
+    margin-right:10px;
+}
+"""
+
 LOGOS = {
     'qwen-': 'https://acd-assets.alicdn.com/acd_work/tongyi-portal/assets/logo.svg',
     'fuyu-': 'https://www.adept.ai/images/adept-logo.png'
@@ -152,7 +165,7 @@ def _launch_demo(args, model, tokenizer):
         # full_response = _parse_text(response)
 
         task_history[-1] = (query, full_response)
-        print("Qwen-VL-Chat: " + _parse_text(full_response))
+        print(f'{MDL_NAME}: {_parse_text(full_response)}')
         yield _chatbot
 
     def regenerate(_chatbot, task_history):
@@ -189,10 +202,11 @@ def _launch_demo(args, model, tokenizer):
         task_history.clear()
         return []
 
-    with gr.Blocks(title='视觉大模型') as demo:
+    with gr.Blocks(title='视觉大模型', css=css) as demo:
         if MDL_LOGO is not None:
-            gr.Markdown(f'<p align="center"><img src="{MDL_LOGO}" style="height: 80px"/><p>')
-        gr.Markdown(f'<center><font size=8>{MDL_NAME}</center>')
+            gr.Markdown(f'<p class="model-info"><img class="model-icon" src="{MDL_LOGO}" />{MDL_NAME}</p>')
+        else:
+            gr.Markdown(f'<p class="model-info">{MDL_NAME}</p>')
 
         chatbot = gr.Chatbot(label=MDL_NAME, elem_classes="control-height", height=750)
         query = gr.Textbox(lines=2, label='Input')
