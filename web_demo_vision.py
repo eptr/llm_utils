@@ -34,6 +34,7 @@ MDL_NAME = Path(DEFAULT_CKPT_PATH).name
 MDL_LOGO = [v for k, v in LOGOS.items() if MDL_NAME.lower().startswith(k)]
 MDL_LOGO = MDL_LOGO[0] if len(MDL_LOGO) > 0 else None
 BOX_TAG_PATTERN = r"<box>([\s\S]*?)</box>"
+REMOVE_IMAGE_SPECIAL = bool(os.getenv('REMOVE_IMAGE_SPECIAL', default=False))
 PUNCTUATION = "！？。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 
 
@@ -144,7 +145,10 @@ def _launch_demo(args, model, tokenizer):
         history, message = history_filter[:-1], history_filter[-1][0]
         # response, history = model.chat(tokenizer, message, history=history)
         for response in model.chat_stream(tokenizer, message, history=history):
-            _chatbot[-1] = (_parse_text(chat_query), _remove_image_special(_parse_text(response)))
+            if REMOVE_IMAGE_SPECIAL:
+                _chatbot[-1] = (_parse_text(chat_query), _remove_image_special(_parse_text(response)))
+            else:
+                _chatbot[-1] = (_parse_text(chat_query), _parse_text(response))
 
             yield _chatbot
             full_response = _parse_text(response)
